@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /Users/stevem/Documents/Arduino/ESP32-C6/HomeAssistant -type f -name *.ino -o -name *.cpp -o -name *.h -o -name *.md -o -name *.ini -o -name Makefile -o -name *.json)",
+      "Bash(du:*)",
+      "Bash(pio run:*)",
+      "Bash(pio boards:*)",
+      "Bash(python3 -m json.tool)",
+      "Bash(for board:*)",
+      "Bash(do echo:*)",
+      "Read(//Users/stevem/.platformio/platforms/espressif32/boards/**)",
+      "Bash(done)",
+      "Bash(pip install:*)",
+      "Bash(pipx inject:*)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\(''''dependencies'''',{}\\), indent=2\\)\\)\")",
+      "Read(//Users/stevem/.platformio/packages/tool-esp_install/**)",
+      "Bash(git init:*)",
+      "Bash(git branch:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

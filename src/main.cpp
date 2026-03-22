@@ -139,9 +139,8 @@ void drawSection(int16_t y, uint16_t c,
 
 // ── Full display update ───────────────────────────────────────────────────────
 void updateDisplay() {
-  lcd.fillScreen(C_BG);
-
   if (!state.valid) {
+    lcd.fillScreen(C_BG);
     lcd.setTextDatum(lgfx::top_left);
     lcd.setFont(&lgfx::fonts::FreeSans9pt7b);
     int16_t y = 10;
@@ -159,25 +158,38 @@ void updateDisplay() {
     return;
   }
 
+
+  static char prev_solar[16] = "", prev_grid[16] = "", prev_temp[16] = "";
+  static bool prev_exporting = false;
+
   char val[16];
   int16_t y0 = TOP_Y;
   int16_t y1 = TOP_Y + SEC_H + GAP;
   int16_t y2 = TOP_Y + (SEC_H + GAP) * 2;
 
   // ① Solar
-  // Values below 10W are sensor noise; show zero
   float solar = state.solar < 10.0f ? 0.0f : state.solar;
   snprintf(val, sizeof(val), "%.0f", solar);
-  drawSection(y0, C_SUN, iconSun, val);
+  if (strcmp(val, prev_solar) != 0) {
+    drawSection(y0, C_SUN, iconSun, val);
+    strcpy(prev_solar, val);
+  }
 
   // ② Grid — colour flips between import (salmon) and export (green)
   bool exporting = state.grid < 0.0f;
   snprintf(val, sizeof(val), "%.0f", fabsf(state.grid));
-  drawSection(y1, exporting ? C_EXP : C_IMP, iconBolt, val);
+  if (strcmp(val, prev_grid) != 0 || exporting != prev_exporting) {
+    drawSection(y1, exporting ? C_EXP : C_IMP, iconBolt, val);
+    strcpy(prev_grid, val);
+    prev_exporting = exporting;
+  }
 
   // ③ Temperature
   snprintf(val, sizeof(val), "%.1f", state.temp);
-  drawSection(y2, C_TMP, iconThermo, val);
+  if (strcmp(val, prev_temp) != 0) {
+    drawSection(y2, C_TMP, iconThermo, val);
+    strcpy(prev_temp, val);
+  }
 }
 
 // ── WiFi ──────────────────────────────────────────────────────────────────────
@@ -198,6 +210,7 @@ void setup() {
   Serial.begin(115200);
   setCpuFrequencyMhz(80);
   lcd.init(); lcd.setRotation(0); lcd.setBrightness(60);
+  lcd.fillScreen(C_BG);
   // Test: show 9999 in all sections for 3 seconds
   { int16_t y0=TOP_Y, y1=TOP_Y+SEC_H+GAP, y2=TOP_Y+(SEC_H+GAP)*2;
     lcd.fillScreen(C_BG);
